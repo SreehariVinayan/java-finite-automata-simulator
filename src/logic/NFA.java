@@ -3,6 +3,7 @@ package logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class NFA {
@@ -42,6 +43,10 @@ public class NFA {
             
             transitionsOfCurrentState = states.get(currentStateTuple.getStateLabel()).getTransitions();           
             
+            if(characters.length == 0){
+                characters = new char[]{'\0'};
+            }
+
             if (transitionsOfCurrentState.containsKey(characters[i])){
                 for(String state : transitionsOfCurrentState.get(characters[i])){
                     transitions.add(state);
@@ -62,14 +67,60 @@ public class NFA {
                     stack.add(temp);
                 }                
             }
-            if(i == stack.get(stack.size()-1).getIndex() && i == characters.length && 
-                states.get(stack.get(stack.size()-1).getStateLabel()).getIsFinalState())
-                return true;
+
+            try{
+                if (stack.size() == 0) continue; 
+                
+                Tuple lastElementInStack = stack.get(stack.size()-1);
+                
+                if(i == lastElementInStack.getIndex() && i == characters.length && 
+                    states.get(lastElementInStack.getStateLabel()).getIsFinalState())
+                        return true;
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
         }
 
         return false;
+    }
 
+    List<String> generateStrings(int maxLength){
+
+        List<String> strings = new ArrayList<>();
+        strings.add("");
+
+        List<String> previousStrings= new ArrayList<>();
+        previousStrings.add("");
+
+        List<Character> alphabetsWithoutEpsilon = new ArrayList<>();
+        for(Character ch : alphabets)
+            if(ch != '\0')
+                alphabetsWithoutEpsilon.add(ch);
+
+        for(int i = 0; i < maxLength; i++){    
+            List<String> temp = new ArrayList<>(); 
+            for(String string : previousStrings){
+                for(Character ch : alphabetsWithoutEpsilon ){
+                    strings.add(string+Character.toString(ch));
+                    temp.add(string+Character.toString(ch));
+                }
+            }        
+            previousStrings = temp;
+        }
+        return strings;
+    }   
+
+    public LinkedHashMap<String,Boolean> bulkEvaluate(int maxLength){
         
+        LinkedHashMap<String,Boolean> output = new LinkedHashMap<>();
+        List<String> strings = generateStrings(maxLength);
+        
+        for(String string : strings){
+            output.put(string, evaluate(string));
+        }
+
+        return output;
     }
 
     public static void main(String[] args){
@@ -93,7 +144,28 @@ public class NFA {
         alphabets.add('\0');
 
         NFA nfa = new NFA("NFA_1", states, alphabets, "q0");
+
+        System.out.println(nfa.generateStrings(3));
     
-        System.out.println(nfa.evaluate(args[0]));
+        LinkedHashMap<String,Boolean> result = nfa.bulkEvaluate(Integer.parseInt(args[0]));        
+
+        List<String> acceptedStrings = new ArrayList<>();
+        List<String> rejectedStrings = new ArrayList<>();
+
+        for(String key : result.keySet()){
+            if(result.get(key))
+                    acceptedStrings.add(key == "" ? "<Empty String>" : key);
+            else{
+                rejectedStrings.add(key == "" ? "<Empty String>" : key);
+            }
+        }
+
+        System.out.println("\nAccepted Strings");
+        for(String key : acceptedStrings)
+            System.out.println(key);
+
+        System.out.println("\nRejected Strings");
+        for(String key : rejectedStrings)
+            System.out.println(key);
     }
 }
