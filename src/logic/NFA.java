@@ -21,67 +21,55 @@ public class NFA {
     public boolean evaluate(String string){
         char[] characters = string.toCharArray();
 
-        List<String> NO_TRANSITION = new ArrayList<>();
-
         List<Tuple> stack = new ArrayList<>();
         
-        stack.add(new Tuple(initialState, 0, false)); 
+        stack.add(new Tuple(initialState, 0)); 
 
-        boolean epsilonClosureTaken;
         Tuple currentStateTuple;
-        int i = 0;
-        int j;
-        int stringLength = string.length(); 
-        Tuple tempTuple;
+        int i = -1;
+        char EPSILON_CHARACTER = '\0';
+        List<String> transitions = new ArrayList<>();
+        List<String> epsilonTransition = new ArrayList<>();
+        HashMap<Character,List<String>> transitionsOfCurrentState = new HashMap<>();
         
-        while (!stack.isEmpty()){
+        while(!stack.isEmpty()){
             currentStateTuple = stack.remove(stack.size()-1);
             i = currentStateTuple.getIndex();
+
+            transitionsOfCurrentState = new HashMap<>();
+            transitions = new ArrayList<>();
+            epsilonTransition = new ArrayList<>();
             
-            List<String> transitionOfCurrentState = new ArrayList<>();
-
-            if (states.get(currentStateTuple.stateLabel).getTransitions().containsKey(characters[i])){
-                transitionOfCurrentState = states.get(currentStateTuple.stateLabel).getTransitions().get(characters[i]);           
-            }
-
-            if(!transitionOfCurrentState.equals(NO_TRANSITION) || i==characters.length){
-            if(!currentStateTuple.epsilonClosureTaken){
-                for(String stateLabel : states.get(currentStateTuple.getStateLabel()).epsilonClosure()){
-                    epsilonClosureTaken = stateLabel == (currentStateTuple.stateLabel);
-                    tempTuple = new Tuple(stateLabel, i, epsilonClosureTaken);
-                    stack.add(tempTuple);
+            transitionsOfCurrentState = states.get(currentStateTuple.getStateLabel()).getTransitions();           
+            
+            if (transitionsOfCurrentState.containsKey(characters[i])){
+                for(String state : transitionsOfCurrentState.get(characters[i])){
+                    transitions.add(state);
                 }
             }
-            
+
+            if (transitionsOfCurrentState.containsKey(EPSILON_CHARACTER)){
+                epsilonTransition = transitionsOfCurrentState.get(EPSILON_CHARACTER);
+                for(String state : epsilonTransition){
+                    transitions.add(state);
+                }
+            }
+
+            if(!transitions.isEmpty()){
                 i++;
-                for(String stateLabel : transitionOfCurrentState){
-                    epsilonClosureTaken = stateLabel == (currentStateTuple.stateLabel);
-                    Tuple temp = new Tuple(stateLabel, i, epsilonClosureTaken);
+                for(String stateLabel : transitions){
+                    Tuple temp = new Tuple(stateLabel, i);
                     stack.add(temp);
-                }
-            }  
-            else{                
-                for(j = i; stack.get(j).getIndex() == stack.get(j-1).getIndex();j--)
-                    stack.remove(j);
-                stack.remove(j--);
-                i=j;
+                }                
             }
-
-
-
-            System.out.printf("i : %d\nchar : %c\nStack: ",i-1,characters[i-1]);
-            for(Tuple item : stack){
-                System.out.printf("(%s, %d) , ",item.getStateLabel(),item.getIndex());
-            }
-            System.out.println();
-
-            if(i == stringLength && i == currentStateTuple.index && 
-                states.get(currentStateTuple.stateLabel).getIsFinalState()){
-                    return true;
-            }
+            if(i == stack.get(stack.size()-1).getIndex() && i == characters.length && 
+                states.get(stack.get(stack.size()-1).getStateLabel()).getIsFinalState())
+                return true;
         }
 
         return false;
+
+        
     }
 
     public static void main(String[] args){
@@ -92,7 +80,7 @@ public class NFA {
         NfaState q0 = new NfaState("q0", true, transition0);
         
         HashMap<Character,List<String>> transition1 = new HashMap<>();
-        transition0.put('b', new ArrayList<>(Arrays.asList("q1")));
+        transition1.put('b', new ArrayList<>(Arrays.asList("q1")));
         NfaState q1 = new NfaState("q1", true, transition1);
         
         HashMap<String,NfaState> states = new HashMap<>();
@@ -106,6 +94,6 @@ public class NFA {
 
         NFA nfa = new NFA("NFA_1", states, alphabets, "q0");
     
-        System.out.println(nfa.evaluate("aabb"));
+        System.out.println(nfa.evaluate(args[0]));
     }
 }

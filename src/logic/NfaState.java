@@ -21,7 +21,11 @@ public class NfaState {
     }
 
     public HashMap<Character,List<String>> getTransitions(){
-        return transitions;
+        HashMap<Character,List<String>> clone = new HashMap<>();
+        for(Character key : transitions.keySet()){
+            clone.put(key, transitions.get(key));
+        }
+        return clone;
     }
 
     public boolean getIsFinalState(){

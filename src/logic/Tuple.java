@@ -1,14 +1,12 @@
 package logic;
 
 public class Tuple {
-    String stateLabel;
-    int index;
-    boolean epsilonClosureTaken;
+    private String stateLabel;
+    private int index;
 
-    public Tuple(String stateLabel, int index, boolean epsilonClosureTaken){
+    public Tuple(String stateLabel, int index){
         this.stateLabel = stateLabel;
         this.index = index;
-        this.epsilonClosureTaken = epsilonClosureTaken;
     }
 
     public String getStateLabel() {
@@ -17,9 +15,5 @@ public class Tuple {
 
     public int getIndex() {
         return index;
-    }
-
-    public boolean isEpsilonClosureTaken(){
-        return epsilonClosureTaken;
     }
 }
