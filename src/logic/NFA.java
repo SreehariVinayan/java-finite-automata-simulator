@@ -47,7 +47,7 @@ public class NFA {
                 characters = new char[]{'\0'};
             }
 
-            if (transitionsOfCurrentState.containsKey(characters[i])){
+            if (i<characters.length && transitionsOfCurrentState.containsKey(characters[i])){
                 for(String state : transitionsOfCurrentState.get(characters[i])){
                     transitions.add(state);
                 }
@@ -123,31 +123,44 @@ public class NFA {
         return output;
     }
 
-    public static void main(String[] args){
-
+    public static NFA defaultNfa(){
         HashMap<Character,List<String>> transition0 = new HashMap<>();
-        transition0.put('a', new ArrayList<>(Arrays.asList("q0")));
-        transition0.put('\0', new ArrayList<>(Arrays.asList("q1")));
-        NfaState q0 = new NfaState("q0", true, transition0);
+        transition0.put('0', new ArrayList<>(Arrays.asList("q0")));
+        transition0.put('1', new ArrayList<>(Arrays.asList("q0","q1")));
+        NfaState q0 = new NfaState("q0", false, transition0);
         
         HashMap<Character,List<String>> transition1 = new HashMap<>();
-        transition1.put('b', new ArrayList<>(Arrays.asList("q1")));
-        NfaState q1 = new NfaState("q1", true, transition1);
+        transition1.put('0', new ArrayList<>(Arrays.asList("q2")));
+        transition1.put('1', new ArrayList<>(Arrays.asList("q2")));
+        NfaState q1 = new NfaState("q1", false, transition1);
+
+        HashMap<Character,List<String>> transition2 = new HashMap<>();
+        transition2.put('0', new ArrayList<>(Arrays.asList("q3")));
+        transition2.put('1', new ArrayList<>(Arrays.asList("q3")));
+        NfaState q2 = new NfaState("q2", false, transition2);
+
+        HashMap<Character,List<String>> transition3 = new HashMap<>();
+        NfaState q3 = new NfaState("q3", true, transition3);
         
         HashMap<String,NfaState> states = new HashMap<>();
         states.put("q0", q0);
         states.put("q1", q1);
+        states.put("q2", q2);
+        states.put("q3", q3);
 
         List<Character> alphabets = new ArrayList<>();
-        alphabets.add('a');
-        alphabets.add('b');
+        alphabets.add('0');
+        alphabets.add('1');
         alphabets.add('\0');
 
-        NFA nfa = new NFA("NFA_1", states, alphabets, "q0");
+        return new NFA("NFA_1", states, alphabets, "q0");
+    }
 
-        System.out.println(nfa.generateStrings(3));
+    public static void main(String[] args){
+
+        NFA nfa = defaultNfa();
     
-        LinkedHashMap<String,Boolean> result = nfa.bulkEvaluate(Integer.parseInt(args[0]));        
+        LinkedHashMap<String,Boolean> result = nfa.bulkEvaluate(args.length > 0 ? Integer.parseInt(args[0]) : 3);        
 
         List<String> acceptedStrings = new ArrayList<>();
         List<String> rejectedStrings = new ArrayList<>();
@@ -168,4 +181,10 @@ public class NFA {
         for(String key : rejectedStrings)
             System.out.println(key);
     }
+
+    public String getLabel(){
+        return label;
+    }
 }
+
+
