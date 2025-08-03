@@ -1,6 +1,5 @@
 package logic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,17 +33,6 @@ public class NfaState {
 
     public List<String> evaluate(char ch){
         return transitions.get(ch);
-    }
-
-    public List<String> epsilonClosure(){
-        List<String> epsilonClosure = new ArrayList<>();
-        epsilonClosure.add(label);
-        if(transitions.isEmpty()){
-            return new ArrayList<>();
-        }
-        for(String stateLabel : transitions.get('\0'))
-            epsilonClosure.add(stateLabel);
-        return epsilonClosure;
     }
 
 }

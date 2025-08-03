@@ -18,6 +18,10 @@ public class DFA {
         this.initialState = initialState;
     }
 
+    public String getLabel(){
+        return label;
+    }
+
     public void listTransitionFunction(){
         System.out.println("   a  b");
         for(String stateLabel : states.keySet()){

@@ -28,7 +28,7 @@ public class NFA {
 
         Tuple currentStateTuple;
         int i = -1;
-        char EPSILON_CHARACTER = '\0';
+        
         List<String> transitions = new ArrayList<>();
         List<String> epsilonTransition = new ArrayList<>();
         HashMap<Character,List<String>> transitionsOfCurrentState = new HashMap<>();
@@ -44,24 +44,25 @@ public class NFA {
             transitionsOfCurrentState = states.get(currentStateTuple.getStateLabel()).getTransitions();           
             
             if(characters.length == 0){
-                characters = new char[]{'\0'};
+                characters = new char[]{'#'};
             }
 
             if (i<characters.length && transitionsOfCurrentState.containsKey(characters[i])){
                 for(String state : transitionsOfCurrentState.get(characters[i])){
                     transitions.add(state);
+                    transitions.addAll(epsilonClosure(state));
                 }
+                i++;
             }
 
-            if (transitionsOfCurrentState.containsKey(EPSILON_CHARACTER)){
-                epsilonTransition = transitionsOfCurrentState.get(EPSILON_CHARACTER);
+            if (transitionsOfCurrentState.containsKey('#')){
+                epsilonTransition = epsilonClosure(currentStateTuple.getStateLabel());
                 for(String state : epsilonTransition){
                     transitions.add(state);
                 }
             }
 
             if(!transitions.isEmpty()){
-                i++;
                 for(String stateLabel : transitions){
                     Tuple temp = new Tuple(stateLabel, i);
                     stack.add(temp);
@@ -84,7 +85,7 @@ public class NFA {
 
         return false;
     }
-
+    
     List<String> generateStrings(int maxLength){
 
         List<String> strings = new ArrayList<>();
@@ -95,7 +96,7 @@ public class NFA {
 
         List<Character> alphabetsWithoutEpsilon = new ArrayList<>();
         for(Character ch : alphabets)
-            if(ch != '\0')
+            if(ch != '#')
                 alphabetsWithoutEpsilon.add(ch);
 
         for(int i = 0; i < maxLength; i++){    
@@ -112,7 +113,6 @@ public class NFA {
     }   
 
     public LinkedHashMap<String,Boolean> bulkEvaluate(int maxLength){
-        
         LinkedHashMap<String,Boolean> output = new LinkedHashMap<>();
         List<String> strings = generateStrings(maxLength);
         
@@ -124,34 +124,42 @@ public class NFA {
     }
 
     public static NFA defaultNfa(){
+        
         HashMap<Character,List<String>> transition0 = new HashMap<>();
-        transition0.put('0', new ArrayList<>(Arrays.asList("q0")));
-        transition0.put('1', new ArrayList<>(Arrays.asList("q0","q1")));
+        transition0.put('#', new ArrayList<>(Arrays.asList("q1","q3")));
         NfaState q0 = new NfaState("q0", false, transition0);
         
         HashMap<Character,List<String>> transition1 = new HashMap<>();
-        transition1.put('0', new ArrayList<>(Arrays.asList("q2")));
-        transition1.put('1', new ArrayList<>(Arrays.asList("q2")));
+        transition1.put('a', new ArrayList<>(Arrays.asList("q2")));
         NfaState q1 = new NfaState("q1", false, transition1);
 
         HashMap<Character,List<String>> transition2 = new HashMap<>();
-        transition2.put('0', new ArrayList<>(Arrays.asList("q3")));
-        transition2.put('1', new ArrayList<>(Arrays.asList("q3")));
+        transition2.put('#', new ArrayList<>(Arrays.asList("q5")));
         NfaState q2 = new NfaState("q2", false, transition2);
 
         HashMap<Character,List<String>> transition3 = new HashMap<>();
-        NfaState q3 = new NfaState("q3", true, transition3);
+        transition3.put('b', new ArrayList<>(Arrays.asList("q4")));
+        NfaState q3 = new NfaState("q3", false, transition3);
+
+        HashMap<Character,List<String>> transition4 = new HashMap<>();
+        transition4.put('#', new ArrayList<>(Arrays.asList("q5")));
+        NfaState q4 = new NfaState("q4", false, transition4);
+
+        HashMap<Character,List<String>> transition5 = new HashMap<>();
+        NfaState q5 = new NfaState("q5", true, transition5);
         
         HashMap<String,NfaState> states = new HashMap<>();
         states.put("q0", q0);
         states.put("q1", q1);
         states.put("q2", q2);
         states.put("q3", q3);
+        states.put("q4", q4);
+        states.put("q5", q5);
 
         List<Character> alphabets = new ArrayList<>();
-        alphabets.add('0');
-        alphabets.add('1');
-        alphabets.add('\0');
+        alphabets.add('a');
+        alphabets.add('b');
+        alphabets.add('#');
 
         return new NFA("NFA_1", states, alphabets, "q0");
     }
@@ -185,6 +193,27 @@ public class NFA {
     public String getLabel(){
         return label;
     }
-}
 
+    List<String> epsilonClosure(String state){
+        List<String> epsilonClosure = new ArrayList<>();
+        
+        List<String> epsilonClosureOfAState =states.get(state).getTransitions().get('#');
+        
+        if(epsilonClosureOfAState != null)
+        for(String stateLabel : epsilonClosureOfAState)
+            epsilonClosure.add(stateLabel);
+
+        List<String> temp = new ArrayList<>();
+
+        if(epsilonClosure != null)
+        for(String stateLabel : epsilonClosure){
+            temp.addAll(epsilonClosure(stateLabel));
+        }
+
+        if(temp != null)
+        epsilonClosure.addAll(temp);
+
+        return epsilonClosure;
+    }
+}
 
