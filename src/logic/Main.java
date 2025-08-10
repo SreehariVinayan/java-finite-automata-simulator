@@ -13,7 +13,6 @@ public class Main {
     static final String EMPTY_STRING = "";
     static final String TRUE_STRING = "TRUE";
     static final int DEFAULT_MAX_COMBINATIONS = 4;
-    static final String DEFAULT_CSV_FILE = "dfa_alternateAB.csv";
 
     public static void main(String[] args){
 
