@@ -13,6 +13,7 @@ public class Main {
     static final String EMPTY_STRING = "";
     static final String TRUE_STRING = "TRUE";
     static final int DEFAULT_MAX_COMBINATIONS = 4;
+    static final String DEFAULT_CSV_FILE = "dfa_alternateAB.csv";
 
     public static void main(String[] args){
 
@@ -29,8 +30,9 @@ public class Main {
             }
 
         } else {
-            System.out.println("No command line argument provided. Defaulting File Path to source.csv");
-            fileName = "source.csv";
+            System.out.println("No command line argument provided.");
+            printTipMessage();
+            return;
         }
 
         HashMap<String,State> states = new HashMap<>();
@@ -44,10 +46,7 @@ public class Main {
         }
         catch(Exception e){
             System.out.println("Error\t: " + e.getMessage());
-            System.out.println("Usage\t: java -jar DFA.jar <csv_file_name>");
-            System.out.println("Example\t: java -jar DFA.jar files/dfa_alternateAB.csv");
-            System.out.println("Note\t: Place all CSV files inside a folder named 'files' in the same directory as DFA.jar.");
-            System.out.println("Tip\t: Ensure the file name is spelled correctly and has .csv extension.");
+            printTipMessage();
             return;
         }
 
@@ -108,9 +107,16 @@ public class Main {
         System.out.println("\nRejected Strings");
         for(String key : rejectedStrings)
             System.out.println(key);
+    }
 
-        //new CustomFrame(acceptedStrings);
+    private static void printTipMessage(){
+        System.out.println("\nUsage\t: java -jar DFA.jar <csv_file_name> <max_count_of_combinations>");
+        System.out.println("Example\t: java -jar DFA.jar files/dfa_alternateAB.csv 4");
+        System.out.println("Note\t: Place all CSV files inside a folder named 'files' in the same directory as DFA.jar.");
+        System.out.println("Caution\t: Ensure the file name is spelled correctly and has .csv extension.");
+        System.out.println("\nTip\t: If all the combinations are not visible try running the command with piped to less or more.");
+        System.out.println("Example\t: java -jar DFA.jar <csv_file_name> <max_count_of_combinations> | more");    
     }
 }
 
-// For compiling : javac -sourcepath src -d out src/logic/*.java src/gui/*.java
+// For compiling : javac -sourcepath src -d out src/logic/*.java

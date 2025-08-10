@@ -1,0 +1,5 @@
+,a,b,isFinalState
+q0,q1,q2,TRUE
+q1,qt,q2,TRUE
+q2,q1,qt,TRUE
+qt,qt,qt,FALSE

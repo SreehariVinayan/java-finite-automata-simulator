@@ -1,4 +1,6 @@
-/files
+files/dfa_divisibleBy2and3.csv
+dfa_endsWithAorSecondLastB.csv
+dsa_anyAfollowedByb.csv
 /out
 /DFA.jar
 /MANIFEST.MF

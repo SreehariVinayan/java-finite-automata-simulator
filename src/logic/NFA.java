@@ -43,9 +43,6 @@ public class NFA {
             
             transitionsOfCurrentState = states.get(currentStateTuple.getStateLabel()).getTransitions();           
             
-            if(characters.length == 0){
-                characters = new char[]{'#'};
-            }
 
             if (i<characters.length && transitionsOfCurrentState.containsKey(characters[i])){
                 for(String state : transitionsOfCurrentState.get(characters[i])){
